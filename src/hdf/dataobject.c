@@ -507,7 +507,8 @@ static int readOHDRHeaderMessageDataLayout(struct READER *reader,
         free(data->data);
         data->data = NULL;
       }
-      if (data_size > 0x10000000)
+      if (data_size > 0x10000000 ||
+          !validRange(reader, data_address, data_size))
         return MYSOFA_INVALID_FORMAT;
       data->data_len = data_size;
       data->data = calloc(1, data_size);
@@ -546,7 +547,7 @@ static int readOHDRHeaderMessageDataLayout(struct READER *reader,
       if (mysofa_seek(reader, data_address, SEEK_SET) < 0)
         return errno; // LCOV_EXCL_LINE
       if (!data->data) {
-        if (size > 0x100000000)
+        if (size > 0x100000000 || !validInflatedSize(reader, size))
           return MYSOFA_INVALID_FORMAT; // LCOV_EXCL_LINE
         data->data_len = size;
         data->data = calloc(1, size);
