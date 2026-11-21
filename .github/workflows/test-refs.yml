@@ -1,0 +1,60 @@
+# Fork-only workflow (jayarjo/libmysofa), kept on the branch ci/test-refs and
+# never on a branch offered upstream. A push to ci/test-refs runs libmysofa's
+# own test suite on each ref listed below. It builds and tests only; it
+# publishes nothing (no release, no pre-release, no artifact). The upstream
+# workflow, build.yml, is disabled on this fork because its PreRelease job
+# publishes a release.
+name: Test the fork's refs
+
+on:
+  push:
+    branches:
+      - ci/test-refs
+
+permissions:
+  contents: read
+
+jobs:
+  ctest:
+    name: ${{ matrix.ref }} (${{ matrix.build }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ref:
+          - bugfix/bounded-allocations
+          - bugfix/fractalheap-zero-size
+          - bugfix/refused-file-leak
+          - bpad
+        build:
+          # The same build as upstream's Linux job.
+          - plain
+          # libmysofa's own ADDRESS_SANITIZE option: AddressSanitizer, which
+          # on Linux also reports leaks at exit.
+          - address-sanitizer
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libcunit1-dev
+
+      - name: Check out the ref
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.ref }}
+          submodules: true
+
+      - name: Show the commit under test
+        run: git log -1 --format='%H %s'
+
+      - name: Configure
+        run: |
+          if [ "${{ matrix.build }}" = address-sanitizer ]; then
+            cmake -S . -B _build -DADDRESS_SANITIZE=ON
+          else
+            cmake -S . -B _build
+          fi
+
+      - name: Build
+        run: cmake --build _build -j "$(nproc)"
+
+      - name: Run tests
+        run: ctest --test-dir _build --output-on-failure
