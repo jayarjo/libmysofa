@@ -30,6 +30,8 @@ int main() {
                            test_check_sizes_past_end)) ||
       (NULL == CU_add_test(pSuite, "test of zero heap sizes",
                            test_check_zero_heap_sizes)) ||
+      (NULL == CU_add_test(pSuite, "test of conventions not sofa",
+                           test_check_conventions_not_sofa)) ||
       (NULL ==
        CU_add_test(pSuite, "test of mysofa_check_data", test_check_data)) ||
       (NULL == CU_add_test(pSuite, "test of mysofa_lookup", test_lookup)) ||

@@ -23,6 +23,8 @@ void test_check_sizes_past_end();
 
 void test_check_zero_heap_sizes();
 
+void test_check_conventions_not_sofa();
+
 void test_check_data();
 
 void test_lookup();
