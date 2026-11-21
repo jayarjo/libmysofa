@@ -21,6 +21,8 @@ void test_check_data_sizes();
 
 void test_check_sizes_past_end();
 
+void test_check_zero_heap_sizes();
+
 void test_check_data();
 
 void test_lookup();
