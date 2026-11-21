@@ -57,4 +57,23 @@ jobs:
         run: cmake --build _build -j "$(nproc)"
 
       - name: Run tests
+        if: matrix.build == 'plain'
         run: ctest --test-dir _build --output-on-failure
+
+      # Under AddressSanitizer, every allocation over 64 MB fails and returns
+      # NULL (the reader then returns MYSOFA_NO_MEMORY). A test file that
+      # declares a size it cannot hold must be refused before a buffer of
+      # that size is allocated, so the CUnit test, which asserts
+      # MYSOFA_INVALID_FORMAT for each such file, fails if the refusal comes
+      # after the allocation.
+      # latTestAziBeRTA_Resamp1_Fran.sofa is a valid file of 1.4 MB with a
+      # dataset of 170 MB, so its test runs without the limit.
+      - name: Run tests under a 64 MB allocation limit
+        if: matrix.build == 'address-sanitizer'
+        env:
+          ASAN_OPTIONS: max_allocation_size_mb=64:allocator_may_return_null=1
+        run: ctest --test-dir _build --output-on-failure -E '^latTestAziBeRTA_Resamp1_Fran$'
+
+      - name: Run the test of the 170 MB dataset without the limit
+        if: matrix.build == 'address-sanitizer'
+        run: ctest --test-dir _build --output-on-failure -R '^latTestAziBeRTA_Resamp1_Fran$'
