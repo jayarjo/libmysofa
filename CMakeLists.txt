@@ -106,7 +106,8 @@ if(BUILD_TESTS)
            ${PROJECT_SOURCE_DIR}/tests/fail-data-delay-layout.sofa)
   set_tests_properties(fail-data-delay-layout PROPERTIES WILL_FAIL TRUE)
   foreach(SAMPLE heap-name-past-end chunk-past-end chunk-inflates-past-file
-                 dataset-inflates-past-file)
+                 dataset-inflates-past-file eof-past-file
+                 chunk-inflates-past-chunk dataset-size-overflows)
     add_test(NAME fail-${SAMPLE} COMMAND mysofa2json -c
              ${PROJECT_SOURCE_DIR}/tests/fail-${SAMPLE}.sofa)
     set_tests_properties(fail-${SAMPLE} PROPERTIES WILL_FAIL TRUE)
